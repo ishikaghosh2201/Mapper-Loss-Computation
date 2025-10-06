@@ -114,7 +114,7 @@ def read_mapper(file_path):
 
 def scale_heights(heights, scale_factor= 10):
     for node_id in heights:
-        heights[node_id] = int(heights[node_id] * scale_factor)
+        heights[node_id] = int(round(heights[node_id], 1) * scale_factor)
 
     return heights
 
