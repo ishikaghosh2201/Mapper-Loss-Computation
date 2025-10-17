@@ -57,9 +57,12 @@ def normalize_node_heights(G, resolution=10):
 
     return G
 
-def generate_mappers(G):
+def generate_mapper(sample):
 
-    M = MapperGraph(G)
+    G1 = create_basic_mapper(sample)
+    G2 = normalize_node_heights(G1)
+
+    M = MapperGraph(G2)
 
     return M
 
