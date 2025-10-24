@@ -1,5 +1,5 @@
 import kmapper as km
-from cereeberus import Interleave, MapperGraph
+from cereeberus import MapperGraph
 from sklearn.cluster import DBSCAN
 from sklearn import datasets
 import networkx as nx
