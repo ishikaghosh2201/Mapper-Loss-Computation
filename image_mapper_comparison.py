@@ -1,13 +1,5 @@
 ### Workflow to compare mapper graphs generated from image data ###
 ##################################################################
-## FINISH THIS WORKFLOW ##
-# 1. Load image data and convert it to binary image
-# 2. save the image as point cloud of maximum pixel values. It keeps the x and y coordinates in a numpy array.
-# 3. Create a mapper graph from the point cloud. The y-coordinate of the points is used as the lens. Use kepler mapper to create the graph. Cluster the points using DBSCAN with eps=10. Use 5 intervals and 30% overlap.
-# 4. Assign heights to each cluster based on the y-coordinates of the points in the cluster. The height is the mean y-coordinate of the points in the cluster.
-
-
-##################################################################
 
 
 ### ---------------------------------###
@@ -25,7 +17,7 @@ import networkx as nx
 from itertools import combinations_with_replacement
 import multiprocessing as mp
 
-from cereeberus import ReebGraph, Interleave
+from cereeberus import ReebGraph, Interleave, MapperGraph
 
 
 def resize_image(image, target_height=None):
@@ -63,29 +55,30 @@ def rotate_image(image, angle=90):
     return image.rotate(angle)
 
 
-def save_rotated_image(image, output_path, angle=90):
+def save_rotated_image(image_path, angle=90):
     """
     Rotate the image and save it to an output path.
 
     Parameters
-        image : PIL image
-        output_path : str
+        image_path : str
         angle : int
 
     Returns
         None
     """
-
+    image = Image.open(image_path)
     image = rotate_image(image, angle)
+    # save to the same file path
+    image.save(image_path)
 
 
 ### ---------------------------------###
 ### Load image data ###
 ### ---------------------------------###
-def get_point_couds_from_image(image_path, rotate_angle=None):
+def get_point_cloud_from_image(image_path, rotate_angle=None):
     """
     Get the point clouds from the image. This returns the coordinates of the white pixels in the image.
-
+    
     Parameters
         image_path : str
 
@@ -197,7 +190,7 @@ def mapper_of_image(points, lens="proj"):  # , num_intervals=5, overlap=0.3):
     return G
 
 
-def normalize_node_heihgts(G, min_target=0, max_target=1, precision=2):
+def normalize_node_heights(G, min_target=0, max_target=1, precision=2):
     """
     Normalize the heights of the nodes in the graph. The heights are normalized to be between 0 and 1. This is done to make differnt mapper graphs comparable. The precision parameter is used to round the heights to a certain number of decimal places.
 
@@ -230,7 +223,7 @@ def normalize_node_heihgts(G, min_target=0, max_target=1, precision=2):
 ### ---------------------------------###
 
 
-def generate_mapper(G, resolution=20):
+def generate_mapper(G, resolution=10):
     """
     Generate a MapperGraph object from a networkx graph.
 
@@ -243,16 +236,26 @@ def generate_mapper(G, resolution=20):
     """
     # Create a MapperGraph object from kepler mapper output
 
-    # Convert to a ReebGraph
-    reebG = ReebGraph(G, verbose=False)
+    # set the node heights as a dictionary
+    node_heights = nx.get_node_attributes(G, 'fx')
 
-    # make sure that the function values are integers in reeb graph
-    for node in reebG.nodes():
-        # multiply by resolution to make the heights integers. Default resolution is 20
-        reebG.f[node] = int(reebG.f[node]*resolution)
-    # Convert to a MapperGraph
+    # multiply by resolution to make the heights integers. Default resolution is 10
+    for node in node_heights:
+        node_heights[node] = int(node_heights[node]*resolution)
 
-    mapperG = reebG.to_mapper()
+    mapperG = MapperGraph(G, node_heights)
+
+
+    # # Convert to a ReebGraph
+    # reebG = ReebGraph(G, verbose=False)
+
+    # # make sure that the function values are integers in reeb graph
+    # for node in reebG.nodes():
+    #     # multiply by resolution to make the heights integers. Default resolution is 20
+    #     reebG.f[node] = int(reebG.f[node]*resolution)
+    # # Convert to a MapperGraph
+
+    # mapperG = reebG.to_mapper()
     return mapperG
 
 ### ---------------------------------###
@@ -311,8 +314,8 @@ def plot_image_and_mapper(G, points, mapperG):
 
 def pairwise_image_to_mapper_comparison(image_path1, image_path2, resolution=20, plot=False, verbose=False, lens="proj"):
     # Load the image and get the point clouds
-    first_points = get_point_couds_from_image(image_path1)
-    second_points = get_point_couds_from_image(image_path2)
+    first_points = get_point_cloud_from_image(image_path1)
+    second_points = get_point_cloud_from_image(image_path2)
 
     # Create a mapper graph from the point clouds
     G1 = mapper_of_image(first_points, lens=lens)
