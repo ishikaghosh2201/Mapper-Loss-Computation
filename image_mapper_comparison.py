@@ -223,7 +223,7 @@ def normalize_node_heights(G, min_target=0, max_target=1, precision=2):
 ### ---------------------------------###
 
 
-def generate_mapper(G, resolution=10):
+def generate_mapper_from_graph(G, resolution=10):
     """
     Generate a MapperGraph object from a networkx graph.
 
@@ -256,6 +256,31 @@ def generate_mapper(G, resolution=10):
     # # Convert to a MapperGraph
 
     # mapperG = reebG.to_mapper()
+    return mapperG
+
+def generate_mapper(impath, resolution=10):
+    """
+    Generate a MapperGraph object from an image path.
+
+    Parameters
+        impath : str
+        resolution : int # resolution to make the heights integers
+
+    Returns
+        MapperGraph
+    """
+    # Load the image and get the point clouds
+    points = get_point_cloud_from_image(impath)
+
+    # Create a mapper graph from the point clouds
+    G = mapper_of_image(points)
+
+    # Normalize the heights of the nodes
+    G = normalize_node_heights(G)
+
+    # Generate a MapperGraph object from the networkx graph
+    mapperG = generate_mapper_from_graph(G, resolution)
+
     return mapperG
 
 ### ---------------------------------###
@@ -312,7 +337,7 @@ def plot_image_and_mapper(G, points, mapperG):
 ### ---------------------------------###
 
 
-def pairwise_image_to_mapper_comparison(image_path1, image_path2, resolution=20, plot=False, verbose=False, lens="proj"):
+def pairwise_image_to_mapper_comparison(image_path1, image_path2, resolution=10, plot=False, verbose=False, lens="proj"):
     # Load the image and get the point clouds
     first_points = get_point_cloud_from_image(image_path1)
     second_points = get_point_cloud_from_image(image_path2)
@@ -365,7 +390,7 @@ def worker(pair):
     return pairwise_image_to_mapper_comparison(image_1, image_2)
 
 
-def parallel_mapper_comparison(image_paths, resolution=20, plot=False, verbose=False, num_procs=None, result_key='best_upper_bound'):
+def parallel_mapper_comparison(image_paths, resolution=10, plot=False, verbose=False, num_procs=None, result_key='best_upper_bound'):
     """
     Run the pairwise_image_to_mapper_comparison function in parallel for multiple image pairs.
 
