@@ -258,7 +258,7 @@ def generate_mapper_from_graph(G, resolution=10):
     # mapperG = reebG.to_mapper()
     return mapperG
 
-def generate_mapper(impath, resolution=10):
+def generate_mapper(impath, resolution=20):
     """
     Generate a MapperGraph object from an image path.
 
