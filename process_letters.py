@@ -66,3 +66,17 @@ def generate_mapper(sample):
 
     return M
 
+def plot_mapper(mapper, sample):
+
+    #plot the mapper and the sample side by side
+    fig, axes = plt.subplots(1, 2, figsize=(12, 6))
+    axes[0].set_title("Mapper Graph")
+    mapper.draw(ax=axes[0])
+    axes[1].set_title("Sample Points")
+    axes[1].scatter(sample[:, 0], sample[:, 1], s=1)
+    axes[1].set_xlim(-1, 1)
+    axes[1].set_ylim(-1, 2)
+    axes[1].set_aspect('equal')
+    plt.tight_layout()
+    plt.show()
+
