@@ -119,9 +119,6 @@ def generate_letter_R_variable(num_points=1000, noise_std=0.0):
     
     return points
 
-import numpy as np
-import matplotlib.pyplot as plt
-
 def generate_letter_M_variable(num_points=1000, noise_std=0.0):
     points = []
     

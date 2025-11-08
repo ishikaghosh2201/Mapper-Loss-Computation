@@ -1,10 +1,9 @@
 import kmapper as km
 from cereeberus import MapperGraph
 from sklearn.cluster import DBSCAN
-from sklearn import datasets
 import networkx as nx
 import numpy as np
-
+import matplotlib.pyplot as plt
 
 def create_basic_mapper(sample):
     # Create a KeplerMapper object
@@ -49,8 +48,8 @@ def normalize_node_heights(G, resolution=10):
         # normalize to [0, 1]
         norm_height = (height - min_height) / (max_height - min_height)
 
-       # scale to resolution
-        scaled_height = int(norm_height * resolution)
+        # scale to resolution
+        # scale to resolution
 
         # update the node attribute
         G.nodes[node]['fx'] = scaled_height
